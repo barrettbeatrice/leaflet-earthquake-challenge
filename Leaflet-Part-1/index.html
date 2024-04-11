@@ -21,6 +21,38 @@
   <!-- The div that holds our map -->
   <div id="map"></div>
 
+
+  <!-- The legend -->
+  <div id="legend">
+    <h4>Depth Color Legend</h4>
+    <!-- Add legend colors here -->
+    <div class="legend-item">
+      <div class="color-box red"></div>
+      <span>(Depth &lt; 10 km)</span>
+    </div>
+    <div class="legend-item">
+      <div class="color-box orange"></div>
+      <span>(10 - 25 km)</span>
+    </div>
+    <div class="legend-item">
+      <div class="color-box yellow"></div>
+      <span>(25 - 40 km)</span>
+    </div>
+    <div class="legend-item">
+      <div class="color-box pink"></div>
+      <span>(40 - 55 km)</span>
+    </div>
+    <div class="legend-item">
+      <div class="color-box blue"></div>
+      <span>(55 - 70 km)</span>
+    </div>
+    <div class="legend-item">
+      <div class="color-box green"></div>
+      <span>(Depth &gt; 70 km)</span>
+    </div>
+  </div>
+
+
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
