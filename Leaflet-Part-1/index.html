@@ -1,66 +1,92 @@
-<!DOCTYPE html>
-<html lang="en">
+// url
+var url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Leaflet Step-1</title>
+// accessing with d3
+d3.json(url).then(function (data) {
+    // log to console
+    console.log(data); 
+    createFeatures(data.features);   
+  });
 
-  <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-    crossorigin="" />
+// Function to determine marker size
+function markerSize(magnitude) {
+  return magnitude * 2500;
+};
 
-  <!-- Our CSS -->
-  <link rel="stylesheet" type="text/css" href="static/css/style.css">
-</head>
+// Function to determine marker color by depth
+function chooseColor(depth){
+  if (depth < 10) return "#00FF00";
+  else if (depth < 30) return "#99FF33";
+  else if (depth < 50) return "#FFFF00";
+  else if (depth < 70) return "#FF9933";
+  else if (depth < 90) return "orangered";
+  else return "#FF0000";
+}
 
-<body>
+function createFeatures(earthquakeData) {
 
-  <!-- The div that holds our map -->
-  <div id="map"></div>
+  //Function for info upon click
+  function onEachFeature(feature, layer) {
+    layer.bindPopup(`<h3>Location: ${feature.properties.place}</h3><hr><p>Date: ${new Date(feature.properties.time)}</p><p>Magnitude: ${feature.properties.mag}</p><p>Depth: ${feature.geometry.coordinates[2]}</p>`);
+  }
 
+  // Creating GeoJSON layer
+  var earthquakes = L.geoJSON(earthquakeData, {
+    onEachFeature: onEachFeature,
 
-  <!-- The legend -->
-  <div id="legend">
-    <h4>Depth Color Legend</h4>
-    <!-- Add legend colors here -->
-    <div class="legend-item">
-      <div class="color-box red"></div>
-      <span>(Depth &lt; 10 km)</span>
-    </div>
-    <div class="legend-item">
-      <div class="color-box orange"></div>
-      <span>(10 - 25 km)</span>
-    </div>
-    <div class="legend-item">
-      <div class="color-box yellow"></div>
-      <span>(25 - 40 km)</span>
-    </div>
-    <div class="legend-item">
-      <div class="color-box pink"></div>
-      <span>(40 - 55 km)</span>
-    </div>
-    <div class="legend-item">
-      <div class="color-box blue"></div>
-      <span>(55 - 70 km)</span>
-    </div>
-    <div class="legend-item">
-      <div class="color-box green"></div>
-      <span>(Depth &gt; 70 km)</span>
-    </div>
-  </div>
+    pointToLayer: function(feature, latlng) {
+
+      // Marker style
+      var markers = {
+        radius: markerSize(feature.properties.mag*5),
+        fillColor: chooseColor(feature.geometry.coordinates[2]),
+        fillOpacity: 0.7,
+        color: "black",
+        stroke: true,
+        weight: 0.5
+      }
+      return L.circle(latlng,markers);
+    }
+  });
 
 
-  <!-- Leaflet JS -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-    crossorigin=""></script>
-  <!-- D3 JavaScript -->
-  <script src="https://d3js.org/d3.v7.min.js"></script>
-  <!-- Our JavaScript -->
-  <script type="text/javascript" src="static/js/logic.js"></script>
-</body>
+  createMap(earthquakes);
+}
 
-</html>
+function createMap(earthquakes) {
+
+  // Create tile layer
+  var grayscale = L.tileLayer('https://api.mapbox.com/styles/v1/{style}/tiles/{z}/{x}/{y}?access_token={access_token}', {
+    attribution: "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
+    tileSize: 512,
+    maxZoom: 18,
+    zoomOffset: -1,
+    style: 'mapbox/light-v11',
+    access_token: api_key
+  });
+
+  // Creating map
+  var myMap = L.map("map", {
+    center: [
+      39.82, -98.57
+    ],
+    zoom: 5,
+    layers: [grayscale, earthquakes]
+  });
+
+  // Adding legend
+  var legend = L.control({position: "bottomright"});
+  legend.onAdd = function() {
+    var div = L.DomUtil.create("div", "info legend"),
+    depth = [-10, 10, 30, 50, 70, 90];
+
+    div.innerHTML += "<h3 style='text-align: center'>Depth</h3>"
+
+    for (var i = 0; i < depth.length; i++) {
+      div.innerHTML +=
+      '<i style="background:' + chooseColor(depth[i] + 1) + '"></i> ' + depth[i] + (depth[i + 1] ? '&ndash;' + depth[i + 1] + '<br>' : '+');
+    }
+    return div;
+  };
+  legend.addTo(myMap)
+};

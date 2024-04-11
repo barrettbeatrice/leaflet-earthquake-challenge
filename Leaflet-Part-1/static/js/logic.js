@@ -61,24 +61,30 @@ function chooseRadius(magnitude) {
 
 
 
-
-
-
-
-
 // Pull data from the GeoJSON sample with d3 -- all earthquakes within the last week
 d3.json(url).then(function(data) {
     L.geoJson(data, {
         pointToLayer: function(feature, latlng) {
-            // Customize tooltip content to show required information
-            var tooltipContent = `<b>Earthquake ID:</b> ${feature.id}<br>
-                                <b>Magnitude:</b> ${feature.properties.mag}<br>
-                                <b>Depth:</b> ${feature.geometry.coordinates[2]} km`;
-
-            // Create circle marker with customized tooltip content
+            // Create circle marker
             var marker = L.circleMarker(latlng, {
                 radius: chooseRadius(feature.properties.mag)
             });
+
+            // Build the content of the popup
+            var popupContent = `
+                <b>Location:</b> ${feature.properties.place}<br>
+                <b>Date:</b> ${new Date(feature.properties.time).toString()}<br>
+                <b>Magnitude:</b> ${feature.properties.mag}<br>
+                <b>Depth:</b> ${feature.geometry.coordinates[2]} km
+            `;
+
+            // Bind the popup to the marker
+            marker.bindPopup(popupContent);
+
+            // Build the content of the tooltip
+            var tooltipContent = `<b>Earthquake ID:</b> ${feature.id}<br>
+                                <b>Magnitude:</b> ${feature.properties.mag}<br>
+                                <b>Depth:</b> ${feature.geometry.coordinates[2]} km`;
 
             // Bind tooltip to each marker
             marker.bindTooltip(tooltipContent);
@@ -86,8 +92,25 @@ d3.json(url).then(function(data) {
             return marker;
         },
         style: styleInfo // Style
-    }).addTo(earthquake_data);
-    earthquake_data.addTo(myMap); // Add earthquake data to map layer
+
+
+    }).addTo(earthquake_data); // Add earthquake data to map layer
+
+    // Add earthquake data to map layer
+    earthquake_data.addTo(myMap);
+});
+
+          
+            // Bind tooltip to each marker
+            marker.bindTooltip(tooltipContent);
+
+            return marker;
+        },
+        style: styleInfo // Style
+    }).addTo(earthquake_data); // Add earthquake data to map layer
+
+    // Add earthquake data to map layer
+    earthquake_data.addTo(myMap);
 });
 
 // Function to choose the radius of each earthquake marker (based on magnitude)
