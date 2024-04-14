@@ -1,5 +1,5 @@
 // url
-var url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
+const url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
 
 // accessing with d3
 d3.json(url).then(function (data) {
