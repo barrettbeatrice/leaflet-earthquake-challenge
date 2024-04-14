@@ -78,19 +78,22 @@
      layers: [grayscale, earthquakes]
    });
  
-   // Add legend
+   // CREATE LEGEND
    var legend = L.control({position: "bottomright"});
+
    legend.onAdd = function() {
-     var div = L.DomUtil.create("div", "info legend"),
-     depth = [-10, 10, 30, 50, 70, 90];
+     var div = L.DomUtil.create("div", "info legend");
+     div.innerHTML=[
+        "<h2>Depth (km)</h2>",
+        "<p class='100>Less than 10</p>",
+        "<p class='130'>Between 10 and 30</p>",
+        "<p class='150'>Between 30 and 50</p>",
+        "<p class='170'>Between 50 and 70</p>",
+        "<p class='190'>Between 70 and 90</p>",
+        "<p class='g90'>Greater than 90</p>"
+    ].join("");
+
+    return div;
+  };
+   
  
-     div.innerHTML += "<h3 style='text-align: center'>Depth</h3>"
- 
-     for (var i = 0; i < depth.length; i++) {
-       div.innerHTML +=
-       '<i style="background:' + chooseColor(depth[i] + 1) + '"></i> ' + depth[i] + (depth[i + 1] ? '&ndash;' + depth[i + 1] + '<br>' : '+');
-     }
-     return div;
-   };
-   legend.addTo(myMap)
- };
